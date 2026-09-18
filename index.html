@@ -4,19 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Swords2</title>
+    <link rel="preload" href="./fonts/Mom.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="./fonts/AmericanLights.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="./images/background-poster.webp" as="image">
     <style>
         @font-face {
             font-family: 'AmericanLights';
-            src: url('./fonts/AmericanLights.ttf') format('truetype');
+            src: url('./fonts/AmericanLights.woff2') format('woff2');
+            font-display: swap;
         }
-        
+
         @font-face {
             font-family: 'Mom';
-            src: url('./fonts/Mom«t___.ttf') format('truetype');
+            src: url('./fonts/Mom.woff2') format('woff2');
+            font-display: swap;
         }
 
         * {
-            margin: 0;0
+            margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
@@ -101,7 +106,7 @@
             bottom: -10px;
             left: 0;
             right: 0;
-            background-image: url('./images/highlight.png');
+            background-image: url('./images/highlight.webp');
             background-repeat: no-repeat;
             background-size: 100% 100%;
             background-position: center left;
@@ -150,11 +155,18 @@
     </style>
 </head>
 <body>
-    <img src="./images/background.gif" alt="Background" class="background">
+    <video class="background" autoplay muted loop playsinline preload="auto"
+           poster="./images/background-poster.webp" aria-hidden="true">
+        <source src="./images/background.webm" type="video/webm">
+        <source src="./images/background.mp4" type="video/mp4">
+    </video>
     
     <div class="container">
         <div class="logo">
-            <img src="./images/logo.gif" alt="Logo">
+            <picture>
+                <source srcset="./images/logo.webp" type="image/webp">
+                <img src="./images/logo.gif" alt="Logo" width="468" height="468" fetchpriority="high">
+            </picture>
         </div>
 
         <div class="content">
