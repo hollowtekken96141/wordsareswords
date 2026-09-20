@@ -194,10 +194,7 @@
     
     <div class="container">
         <div class="logo">
-            <picture>
-                <source srcset="./images/logo.webp" type="image/webp">
-                <img src="./images/logo.gif" alt="Logo" width="468" height="468" fetchpriority="high">
-            </picture>
+            <img src="./images/logo.gif" alt="Logo" width="468" height="468" fetchpriority="high">
         </div>
 
         <div class="content">
@@ -221,6 +218,13 @@
 
     <script>
         (function () {
+            // Kick the background video: browsers that block autoplay (e.g. iOS Low Power
+            // Mode) allow play() once the user has touched the page.
+            var video = document.querySelector('video.background');
+            function playVideo() { if (video && video.paused) video.play().catch(function () {}); }
+            playVideo();
+            window.addEventListener('pointerdown', playVideo);
+
             var blocks = Array.prototype.slice.call(document.querySelectorAll('.info-section p'));
             if (!blocks.length) return;
 
