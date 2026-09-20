@@ -48,6 +48,13 @@
             object-position: center;
         }
 
+        /* Safari draws a play glyph over a video it refused to autoplay; hide it. */
+        video::-webkit-media-controls-start-playback-button,
+        video::-webkit-media-controls {
+            display: none !important;
+            -webkit-appearance: none;
+        }
+
         .container {
             position: relative;
             z-index: 10;
@@ -218,10 +225,27 @@
 
     <script>
         (function () {
-            // Kick the background video: browsers that block autoplay (e.g. iOS Low Power
-            // Mode) allow play() once the user has touched the page.
+            // Background: try the video first. If the browser refuses to play it
+            // (e.g. iOS Low Power Mode blocks autoplay), swap in an animated WebP,
+            // which browsers always animate. Otherwise retry play() on first touch.
             var video = document.querySelector('video.background');
-            function playVideo() { if (video && video.paused) video.play().catch(function () {}); }
+            var swapped = false;
+            function useAnimatedImage() {
+                if (swapped || !video) return;
+                swapped = true;
+                var img = document.createElement('img');
+                img.className = 'background';
+                img.src = './images/background.webp';
+                img.alt = '';
+                img.setAttribute('aria-hidden', 'true');
+                video.replaceWith(img);
+                video = null;
+            }
+            function playVideo() {
+                if (!video || !video.paused) return;
+                var p = video.play();
+                if (p && p.catch) p.catch(useAnimatedImage);
+            }
             playVideo();
             window.addEventListener('pointerdown', playVideo);
 
