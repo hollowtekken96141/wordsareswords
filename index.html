@@ -33,6 +33,8 @@
             font-family: 'Mom', sans-serif;
             color: #ffffff;
             background-color: #000000;
+            touch-action: none;
+            overscroll-behavior: none;
         }
 
         .background {
@@ -97,6 +99,28 @@
             position: relative;
             padding: 8px 14px;
             margin-bottom: 20px;
+            will-change: transform;
+            transform-origin: 50% 50%;
+            transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--rot, 0deg));
+            animation: intro-wiggle 0.5s ease-in-out;
+            animation-delay: calc(300ms + var(--i, 0) * 70ms);
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        @keyframes intro-wiggle {
+            0%   { transform: translate(0, 0) rotate(0deg); }
+            25%  { transform: translate(-3px, 1px) rotate(-2.5deg); }
+            50%  { transform: translate(3px, -1px) rotate(2deg); }
+            75%  { transform: translate(-2px, 0) rotate(-1deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .info-section p {
+                animation: none;
+                transform: none;
+            }
         }
 
         .info-section p::before {
@@ -121,6 +145,7 @@
             color: #00ff04;
             text-decoration: underline;
             cursor: pointer;
+            -webkit-touch-callout: none;
         }
 
         a:hover {
@@ -145,9 +170,15 @@
                 object-fit: fill;
             }
 
+            body {
+                position: fixed;
+                inset: 0;
+            }
+
             .content {
                 padding-top: 20px;
                 max-height: none;
+                overflow: hidden;
                 z-index: 5;
             }
         }
@@ -187,5 +218,111 @@
             </div>
         </div>
     </div>
+
+    <script>
+        (function () {
+            var blocks = Array.prototype.slice.call(document.querySelectorAll('.info-section p'));
+            if (!blocks.length) return;
+
+            // Stagger the intro wiggle row by row.
+            blocks.forEach(function (b, i) { b.style.setProperty('--i', i); });
+
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+            var HOLD_DELAY = 160;  // ms a press must last before it counts as a hold
+            var MAX_SHIFT  = 6;    // px
+            var MAX_ROT    = 3;    // deg
+            var FREQ       = 14;   // Hz
+
+            var pointer = { x: 0, y: 0 };
+            var centers = [];
+            var range = 1;
+            var phases = blocks.map(function (_, i) { return i * 1.7; });
+            var holdTimer = null;
+            var raf = null;
+            var active = false;
+            var intensity = 0;
+            var exempt = null;
+            var holdType = '';
+
+            function measure() {
+                centers = blocks.map(function (b) {
+                    var r = b.getBoundingClientRect();
+                    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+                });
+                range = Math.hypot(window.innerWidth, window.innerHeight);
+            }
+
+            function rest(b) {
+                b.style.setProperty('--dx', '0px');
+                b.style.setProperty('--dy', '0px');
+                b.style.setProperty('--rot', '0deg');
+            }
+
+            function frame(now) {
+                var t = now / 1000;
+                intensity += ((active ? 1 : 0) - intensity) * (active ? 0.25 : 0.15);
+                if (!active && intensity < 0.01) {
+                    intensity = 0;
+                    blocks.forEach(rest);
+                    raf = null;
+                    return;
+                }
+                blocks.forEach(function (b, i) {
+                    if (b === exempt) { rest(b); return; }
+                    var c = centers[i];
+                    var d = Math.hypot(pointer.x - c.x, pointer.y - c.y);
+                    var amp = Math.max(0, 1 - d / range);   // closer = stronger, linear falloff
+                    amp = amp * intensity;
+                    var w = t * FREQ * Math.PI * 2 + phases[i];
+                    b.style.setProperty('--dx', (Math.sin(w) * MAX_SHIFT * amp).toFixed(2) + 'px');
+                    b.style.setProperty('--dy', (Math.cos(w * 1.3 + 1) * MAX_SHIFT * 0.6 * amp).toFixed(2) + 'px');
+                    b.style.setProperty('--rot', (Math.sin(w * 0.8 + 2) * MAX_ROT * amp).toFixed(2) + 'deg');
+                });
+                raf = requestAnimationFrame(frame);
+            }
+
+            function startHold() {
+                holdTimer = null;
+                measure();
+                active = true;
+                if (!raf) raf = requestAnimationFrame(frame);
+            }
+
+            function onDown(e) {
+                if (e.button !== 0 || !e.isPrimary) return;
+                pointer.x = e.clientX;
+                pointer.y = e.clientY;
+                holdType = e.pointerType;
+                var a = e.target.closest ? e.target.closest('a') : null;
+                exempt = a ? a.closest('.info-section p') : null;
+                clearTimeout(holdTimer);
+                holdTimer = setTimeout(startHold, HOLD_DELAY);
+            }
+
+            function onMove(e) {
+                if (!e.isPrimary) return;
+                pointer.x = e.clientX;
+                pointer.y = e.clientY;
+            }
+
+            function onUp() {
+                clearTimeout(holdTimer);
+                holdTimer = null;
+                active = false;
+                holdType = '';
+            }
+
+            window.addEventListener('pointerdown', onDown);
+            window.addEventListener('pointermove', onMove, { passive: true });
+            window.addEventListener('pointerup', onUp);
+            window.addEventListener('pointercancel', onUp);
+            window.addEventListener('blur', onUp);
+            window.addEventListener('resize', function () { if (active) measure(); });
+            document.addEventListener('contextmenu', function (e) {
+                if (holdType === 'touch') e.preventDefault();
+            });
+        })();
+    </script>
 </body>
 </html>
