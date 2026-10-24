@@ -82,7 +82,8 @@
             padding-top: 110px;
             text-align: left;
             overflow-y: auto;
-            max-height: calc(100vh - 110px);
+            flex: 1;
+            min-height: 0;
         }
 
         h1 {
@@ -91,6 +92,12 @@
             color: #ffffff;
             margin-bottom: 40px;
             font-weight: normal;
+            width: fit-content;
+            will-change: transform;
+            transform-origin: 50% 50%;
+            transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--rot, 0deg));
+            animation: intro-wiggle 0.5s ease-in-out;
+            animation-delay: calc(300ms + var(--i, 0) * 70ms);
         }
 
         .info-section {
@@ -124,6 +131,7 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
+            h1,
             .info-section p {
                 animation: none;
                 transform: none;
@@ -219,6 +227,8 @@
                 <p><a href="https://music.apple.com/us/artist/swords2/1588060878" target="_blank" rel="noopener noreferrer">-  apple music</a></p>
                 
                 <p><a href="https://lecitadell.com" target="_blank" rel="noopener noreferrer">-  le citadell</a></p>
+
+                <p><a href="https://hollowtekken96141.github.io/home/" target="_blank" rel="noopener noreferrer">-  hollowtekken96141</a></p>
             </div>
         </div>
     </div>
@@ -249,7 +259,7 @@
             playVideo();
             window.addEventListener('pointerdown', playVideo);
 
-            var blocks = Array.prototype.slice.call(document.querySelectorAll('.info-section p'));
+            var blocks = Array.prototype.slice.call(document.querySelectorAll('h1, .info-section p'));
             if (!blocks.length) return;
 
             // Stagger the intro wiggle row by row.
@@ -323,7 +333,7 @@
                 pointer.y = e.clientY;
                 holdType = e.pointerType;
                 var a = e.target.closest ? e.target.closest('a') : null;
-                exempt = a ? a.closest('.info-section p') : null;
+                exempt = a ? a.closest('.info-section p, h1') : null;
                 clearTimeout(holdTimer);
                 holdTimer = setTimeout(startHold, HOLD_DELAY);
             }
