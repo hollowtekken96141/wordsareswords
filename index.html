@@ -167,6 +167,37 @@
             color: #cccccc;
         }
 
+        .shirt-ad-slot {
+            position: fixed;
+            top: 280px;
+            bottom: 0;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            z-index: 15;
+            pointer-events: none;
+        }
+
+        .shirt-ad-slot a {
+            pointer-events: auto;
+            display: block;
+            line-height: 0;
+        }
+
+        .shirt-ad-slot img {
+            display: block;
+            max-width: 200px;
+            max-height: calc(100vh - 330px);
+            width: auto;
+            height: auto;
+        }
+
+        @media (max-width: 768px) {
+            .shirt-ad-slot {
+                display: none;
+            }
+        }
+
         @media (max-width: 768px) {
             .logo {
                 position: fixed;
@@ -230,6 +261,10 @@
 
                 <p><a href="https://hollowtekken96141.github.io/home/" target="_blank" rel="noopener noreferrer">-  hollowtekken96141</a></p>
             </div>
+
+            <a class="shirt-ad-slot" href="https://shop.wordsareswords.com/" target="_blank" rel="noopener noreferrer">
+                <img src="./images/shirt-ad.webp" alt="Shirt store" width="150" height="426">
+            </a>
         </div>
     </div>
 
