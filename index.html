@@ -134,7 +134,10 @@
             h1,
             .info-section p {
                 animation: none;
-                transform: none;
+            }
+
+            .shirt-ad-slot img {
+                animation: none;
             }
         }
 
@@ -171,17 +174,11 @@
             position: fixed;
             top: 280px;
             bottom: 0;
-            right: 20px;
+            right: 70px;
             display: flex;
             align-items: center;
             z-index: 15;
-            pointer-events: none;
-        }
-
-        .shirt-ad-slot a {
-            pointer-events: auto;
-            display: block;
-            line-height: 0;
+            transform: translateY(-15vh);
         }
 
         .shirt-ad-slot img {
@@ -190,6 +187,15 @@
             max-height: calc(100vh - 330px);
             width: auto;
             height: auto;
+            animation: ad-stretch 2.4s ease-in-out infinite;
+            transform-origin: 50% 50%;
+        }
+
+        @keyframes ad-stretch {
+            0%, 100% { transform: scale(1, 1); }
+            25%      { transform: scale(1.08, 0.96); }
+            50%      { transform: scale(0.96, 1.08); }
+            75%      { transform: scale(1.04, 0.98); }
         }
 
         @media (max-width: 768px) {
